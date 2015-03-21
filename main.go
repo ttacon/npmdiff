@@ -81,6 +81,19 @@ func main() {
 		var foundPkgJSON, foundNodeModules bool
 		for _, file := range files {
 			if file.Name() == "package.json" {
+				// TODO(ttacon): clean this up so we don't parse
+				// package.json multiple times
+				pjs, err := getPkgJSON(filepath.Join(dir, file.Name()))
+				if err != nil {
+					// hmm, what to do... count it as not finding it?
+					// since we apparently can't parse it?
+					continue
+				}
+
+				if pjs.DevDependencies == nil || len(pjs.DevDependencies) == 0 {
+					// there's nothing in it anyways...
+					continue
+				}
 				foundPkgJSON = true
 			} else if file.Name() == "node_modules" && file.IsDir() {
 				foundNodeModules = true
